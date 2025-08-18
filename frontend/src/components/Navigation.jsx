@@ -3,7 +3,8 @@ import React from 'react';
 const Navigation = ({ activeTab, setActiveTab }) => {
   const tabs = [
     { id: 'catalog', label: 'Movie Catalog', icon: '🎬' },
-    { id: 'recommendations', label: 'Recommendations', icon: '⭐' }
+    { id: 'recommendations', label: 'Recommendations', icon: '⭐' },
+    { id: 'analytics', label: 'Analytics', icon: '📊' }
   ];
 
   return (

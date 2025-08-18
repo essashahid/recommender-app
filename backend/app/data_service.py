@@ -4,6 +4,7 @@ from pathlib import Path
 from .models import Movie, UserPreference, RecommendationMode
 from .ml.content_based import ContentBasedRecommender
 from .ml.collaborative import CollaborativeRecommender
+from .ml.hybrid import HybridRecommender
 
 
 class DataService:
@@ -12,6 +13,7 @@ class DataService:
         self.user_preferences: Dict[str, Dict[int, bool]] = {}  # user_id -> {movie_id: liked}
         self.content_recommender = ContentBasedRecommender()
         self.collaborative_recommender = CollaborativeRecommender()
+        self.hybrid_recommender = HybridRecommender()
         self.current_mode = RecommendationMode.CONTENT_BASED
         self._load_movies()
         self._initialize_recommenders()
@@ -30,14 +32,17 @@ class DataService:
                 year=int(row['year']),
                 director=row['director'],
                 description=row['description'],
-                rating=float(row['rating'])
+                rating=float(row['rating']),
+                poster_url=row.get('poster_url', None),
+                trailer_id=row.get('trailer_id', None)
             )
             self.movies.append(movie)
     
     def _initialize_recommenders(self):
-        """Initialize both recommender systems."""
+        """Initialize all recommender systems."""
         self.content_recommender.fit(self.movies)
         self.collaborative_recommender.fit(self.movies)
+        self.hybrid_recommender.fit(self.movies)
     
     def get_all_movies(self) -> List[Movie]:
         """Get all available movies."""
@@ -57,8 +62,9 @@ class DataService:
         
         self.user_preferences[user_id][movie_id] = liked
         
-        # Update collaborative recommender
+        # Update collaborative and hybrid recommenders
         self.collaborative_recommender.update_user_preferences(user_id, movie_id, liked)
+        self.hybrid_recommender.update_user_preferences(user_id, movie_id, liked)
     
     def get_user_preferences(self, user_id: str) -> Dict[str, List[int]]:
         """Get user's liked and disliked movies."""
@@ -84,8 +90,12 @@ class DataService:
             recommended_ids = self.content_recommender.get_recommendations(
                 liked_movies, disliked_movies, limit
             )
-        else:  # COLLABORATIVE
+        elif mode == RecommendationMode.COLLABORATIVE:
             recommended_ids = self.collaborative_recommender.get_recommendations(
+                user_id, liked_movies, disliked_movies, limit
+            )
+        else:  # HYBRID
+            recommended_ids = self.hybrid_recommender.get_recommendations(
                 user_id, liked_movies, disliked_movies, limit
             )
         

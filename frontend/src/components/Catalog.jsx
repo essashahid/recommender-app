@@ -1,15 +1,22 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useApp, ActionTypes } from '../context/AppContext';
 import { movieAPI } from '../services/api';
 import MovieCard from './MovieCard';
+import SearchAndFilter from './SearchAndFilter';
 
 const Catalog = () => {
   const { state, dispatch } = useApp();
   const { movies, loading, error } = state;
+  const [filteredMovies, setFilteredMovies] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     loadMovies();
   }, []);
+
+  useEffect(() => {
+    setFilteredMovies(movies);
+  }, [movies]);
 
   const loadMovies = async () => {
     try {
@@ -46,11 +53,33 @@ const Catalog = () => {
         <p className="text-gray-600">Browse and rate movies to get personalized recommendations</p>
       </div>
       
+      <SearchAndFilter 
+        movies={movies}
+        onFilteredMovies={setFilteredMovies}
+        onSearchChange={setSearchTerm}
+      />
+      
+      {searchTerm && (
+        <div className="mb-4">
+          <p className="text-gray-600">
+            Showing {filteredMovies.length} results for "{searchTerm}"
+          </p>
+        </div>
+      )}
+      
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {movies.map((movie) => (
+        {filteredMovies.map((movie) => (
           <MovieCard key={movie.id} movie={movie} showActions={true} />
         ))}
       </div>
+      
+      {filteredMovies.length === 0 && !loading && (
+        <div className="text-center py-12">
+          <div className="text-gray-400 text-6xl mb-4">🎬</div>
+          <h3 className="text-xl font-medium text-gray-900 mb-2">No movies found</h3>
+          <p className="text-gray-600">Try adjusting your search or filter criteria</p>
+        </div>
+      )}
     </div>
   );
 };

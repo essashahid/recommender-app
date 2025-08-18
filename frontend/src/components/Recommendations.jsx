@@ -77,6 +77,16 @@ const Recommendations = () => {
             >
               Collaborative
             </button>
+            <button
+              onClick={() => handleModeChange('hybrid')}
+              className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                currentMode === 'hybrid'
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              Hybrid
+            </button>
           </div>
         </div>
         
@@ -89,7 +99,9 @@ const Recommendations = () => {
           <p className="text-blue-700 text-sm mt-1">
             {currentMode === 'content_based' 
               ? 'Recommendations based on movie features and your preferences'
-              : 'Recommendations based on similar users\' preferences'
+              : currentMode === 'collaborative'
+              ? 'Recommendations based on similar users\' preferences'
+              : 'Recommendations combining content-based and collaborative filtering'
             }
           </p>
         </div>

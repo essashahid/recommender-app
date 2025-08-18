@@ -6,6 +6,7 @@ from enum import Enum
 class RecommendationMode(str, Enum):
     COLLABORATIVE = "collaborative"
     CONTENT_BASED = "content_based"
+    HYBRID = "hybrid"
 
 
 class Movie(BaseModel):
@@ -16,6 +17,8 @@ class Movie(BaseModel):
     director: str
     description: str
     rating: float
+    poster_url: Optional[str] = None
+    trailer_id: Optional[str] = None
 
 
 class UserPreference(BaseModel):

@@ -3,6 +3,7 @@ import { AppProvider, useApp, ActionTypes } from './context/AppContext';
 import Navigation from './components/Navigation';
 import Catalog from './components/Catalog';
 import Recommendations from './components/Recommendations';
+import Analytics from './components/Analytics';
 import { movieAPI } from './services/api';
 
 const AppContent = () => {
@@ -30,6 +31,7 @@ const AppContent = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'catalog' && <Catalog />}
         {activeTab === 'recommendations' && <Recommendations />}
+        {activeTab === 'analytics' && <Analytics />}
       </main>
       
       <footer className="bg-white border-t border-gray-200 mt-12">

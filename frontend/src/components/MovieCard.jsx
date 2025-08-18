@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useApp, ActionTypes } from '../context/AppContext';
 import { movieAPI } from '../services/api';
 
 const MovieCard = ({ movie, showActions = true }) => {
   const { state, dispatch } = useApp();
   const { userPreferences, userId } = state;
+  const [showTrailer, setShowTrailer] = useState(false);
 
   const isLiked = userPreferences.liked_movies.includes(movie.id);
   const isDisliked = userPreferences.disliked_movies.includes(movie.id);
@@ -27,8 +28,37 @@ const MovieCard = ({ movie, showActions = true }) => {
     }
   };
 
+  const handleTrailerClick = () => {
+    if (movie.trailer_id) {
+      setShowTrailer(!showTrailer);
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+      {/* Movie Poster */}
+      {movie.poster_url && (
+        <div className="relative h-64 overflow-hidden">
+          <img 
+            src={movie.poster_url} 
+            alt={`${movie.title} poster`}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              e.target.style.display = 'none';
+            }}
+          />
+          {movie.trailer_id && (
+            <button
+              onClick={handleTrailerClick}
+              className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full hover:bg-red-700 transition-colors"
+              title="Watch Trailer"
+            >
+              ▶️
+            </button>
+          )}
+        </div>
+      )}
+      
       <div className="p-6">
         <div className="flex justify-between items-start mb-4">
           <h3 className="text-xl font-bold text-gray-900 line-clamp-2">{movie.title}</h3>
@@ -77,6 +107,30 @@ const MovieCard = ({ movie, showActions = true }) => {
           </div>
         )}
       </div>
+      
+      {/* Trailer Modal */}
+      {showTrailer && movie.trailer_id && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="relative w-full max-w-4xl mx-4">
+            <button
+              onClick={() => setShowTrailer(false)}
+              className="absolute -top-10 right-0 text-white text-2xl hover:text-gray-300"
+            >
+              ✕
+            </button>
+            <div className="relative pb-[56.25%] h-0">
+              <iframe
+                src={`https://www.youtube.com/embed/${movie.trailer_id}?autoplay=1`}
+                title={`${movie.title} Trailer`}
+                className="absolute top-0 left-0 w-full h-full"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
